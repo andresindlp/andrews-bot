@@ -37,7 +37,7 @@ client.on('ready', () => {
 });
 
 client.on('message', async (message) => {
-    const Chat = await message.getChat()
+    const Chat = await message.getChat();
     if (message.type == "image" && message.body == ".s" && Chat.isGroup) {
         try {
             Chat.sendStateTyping()
@@ -55,22 +55,24 @@ client.on('message', async (message) => {
             message.react("❌");
         }
     } else if (message.body == ".s" && message.hasQuotedMsg && Chat.isGroup) {
-        try {
-            Chat.sendStateTyping()
-            const quotedMsg = await message.getQuotedMessage();
-            const media = await quotedMsg.downloadMedia();
-            client.sendMessage(message.from, media, {
-                sendMediaAsSticker: true,
-                stickerName: config.name, // Sticker Name = Edit in 'config/config.json'
-                stickerAuthor: `made with andrew's bot` // Sticker Author = Your Whatsapp BOT Number
-            }).then(() => {
+        const quotedMsg = await message.getQuotedMessage()
+        if (quotedMsg.type == "image") {
+            try {
+                Chat.sendStateTyping();
+                const media = await quotedMsg.downloadMedia();
+                client.sendMessage(message.from, media, {
+                    sendMediaAsSticker: true,
+                    stickerName: config.name, // Sticker Name = Edit in 'config/config.json'
+                    stickerAuthor: `made with andrew's bot` // Sticker Author = Your Whatsapp BOT Number
+                }).then(() => {
+                    Chat.clearState()
+                    quotedMsg.react("✅");
+                });
+            } catch {
                 Chat.clearState()
-                quotedMsg.react("✅");
-            });
-        } catch {
-            Chat.clearState()
-            message.react("❌");
-        }
+                message.react("❌");
+            }
+        }    
     } else if (message.body == ".awijehruoj") {
         client.sendMessage(message.from, "*[⏳]* Loading..");
         try {
