@@ -123,16 +123,16 @@ client.on('message', async (message) => {
                 const authorID = await quotedMsg.getContact();
                 const msgAuthor = authorID.pushname;
                 const msgBody = quotedMsg.body;
-                const maxLength = 22;
+                const maxLength = 20;
                 let partOne = " ";
                 let partTwo = " ";
                 let partThree = " ";
 
-                if (msgBody.length >= 23) {
+                if (msgBody.length >= maxLength) {
                     partOne = msgBody.substring(0,maxLength);
                     partTwo = msgBody.substring(maxLength, maxLength*2);
                     
-                    if (msgBody.length >= 46) {
+                    if (msgBody.length >= maxLength*2) {
                         partThree = msgBody.substring(maxLength*2, maxLength*3);
                     }
                     
