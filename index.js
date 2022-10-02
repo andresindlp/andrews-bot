@@ -38,20 +38,25 @@ client.on('ready', () => {
 
 client.on('message', async (message) => {
     const Chat = await message.getChat();
-    if (message.type == "image" && message.body == ".s" && Chat.isGroup) {
-        try {
-            Chat.sendStateTyping()
-            const media = await message.downloadMedia();
-            client.sendMessage(message.from, media, {
-                sendMediaAsSticker: true,
-                stickerName: config.name, // Sticker Name = Edit in 'config/config.json'
-                stickerAuthor: `made with andrew's bot` // Sticker Author = Your Whatsapp BOT Number
-            }).then(() => {
+    if (message.body == ".s" && Chat.isGroup) {
+        if (message.type == "image") {
+            try {
+                Chat.sendStateTyping()
+                const media = await message.downloadMedia();
+                client.sendMessage(message.from, media, {
+                    sendMediaAsSticker: true,
+                    stickerName: config.name, // Sticker Name = Edit in 'config/config.json'
+                    stickerAuthor: `made with andrew's bot` // Sticker Author = Your Whatsapp BOT Number
+                }).then(() => {
+                    Chat.clearState()
+                    message.react("✅");
+                });
+            } catch {
                 Chat.clearState()
-                message.react("✅");
-            });
-        } catch {
-            Chat.clearState()
+                message.react("❌");
+            }
+        }
+        else {
             message.react("❌");
         }
     } else if (message.body == ".s" && message.hasQuotedMsg && Chat.isGroup) {
@@ -77,19 +82,7 @@ client.on('message', async (message) => {
         else {
             message.react("❌");
         }    
-    } else if (message.body == ".awijehruoj") {
-        client.sendMessage(message.from, "*[⏳]* Loading..");
-        try {
-            const media = await message.downloadMedia();
-            client.sendMessage(message.from, media).then(() => {
-                client.sendMessage(message.from, "*[✅]* Successfully!");
-            });  
-        } catch {
-            client.sendMessage(message.from, "*[❎]* Failed!");
-        }
-    } else if (message.body == ".s" && !Chat.isGroup) {
-        client.sendMessage(message.from, "La función *.s* solo funciona en grupos.")
-    } 
+    }
     else {
         client.getChatById(message.id.remote).then(async (chat) => {
             await chat.sendSeen();
