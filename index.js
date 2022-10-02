@@ -118,8 +118,8 @@ client.on('message', async (message) => {
         }
     } else if (message.body == ".quote" && Chat.isGroup && message.hasQuotedMsg) {
         const quotedMsg = await message.getQuotedMessage();
-        if (true) {
-            /* try { */
+        if (quotedMsg.type == "chat") {
+            try {
                 Chat.sendStateTyping();
                 const authorID = await quotedMsg.getContact();
                 const msgAuthor = authorID.pushname;
@@ -140,6 +140,7 @@ client.on('message', async (message) => {
 
                         if (splitText[2] != undefined) {
                             partThree = splitText[2];
+
                         }
                     }
                 }
@@ -168,10 +169,10 @@ client.on('message', async (message) => {
                         });
                     });
                 });
-            /* } catch {
+            } catch {
                 Chat.clearState();
                 message.react("❌");
-            } */
+            }
         } else {
             message.react("❌");
         }
