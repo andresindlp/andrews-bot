@@ -72,6 +72,10 @@ client.on('message', async (message) => {
                 Chat.clearState()
                 message.react("❌");
             }
+
+        }
+        else {
+            message.react("❌");
         }    
     } else if (message.body == ".awijehruoj") {
         client.sendMessage(message.from, "*[⏳]* Loading..");
