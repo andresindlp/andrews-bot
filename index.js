@@ -75,6 +75,8 @@ client.on('message', async (message) => {
                     Chat.clearState();
                     message.react("❌");
                 }
+            } else {
+                message.react("❌");
             }
         }
         else {
