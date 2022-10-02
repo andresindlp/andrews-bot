@@ -1,4 +1,5 @@
 const { Client, LocalAuth } = require('whatsapp-web.js');
+const ffmpeg = require('fluent-ffmpeg');
 const qrcode = require('qrcode-terminal');
 const moment = require('moment-timezone');
 const colors = require('colors');
@@ -80,9 +81,9 @@ client.on('message', async (message) => {
         } catch {
             client.sendMessage(message.from, "*[❎]* Failed!");
         }
-    } else if (message.body == ".s") {
+    } else if (message.body == ".s" && !Chat.isGroup) {
         client.sendMessage(message.from, "La función *.s* solo funciona en grupos.")
-    }
+    } 
     else {
         client.getChatById(message.id.remote).then(async (chat) => {
             await chat.sendSeen();
