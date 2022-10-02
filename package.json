@@ -19,6 +19,7 @@
     "colors": "^1.4.0",
     "fs": "^0.0.1-security",
     "moment-timezone": "^0.5.37",
+    "pureimage": "^0.3.14",
     "qrcode-terminal": "^0.12.0",
     "whatsapp-web.js": "^1.17.1"
   }
