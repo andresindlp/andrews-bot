@@ -136,6 +136,8 @@ client.on('message', async (message) => {
                         partThree = msgBody.substring(maxLength*2, maxLength*3);
                     }
                     
+                } else {
+                    partOne = msgBody
                 }
 
                 font.load(() => {
