@@ -5,6 +5,7 @@ const moment = require('moment-timezone');
 const colors = require('colors');
 const fs = require('fs');
 const PImage = require('pureimage');
+const wordwrap = require('wordwrapjs');
 
 
 const client = new Client({
@@ -127,17 +128,20 @@ client.on('message', async (message) => {
                 let partOne = " ";
                 let partTwo = " ";
                 let partThree = " ";
+                
+                const warpedText = wordwrap.wrap(msgBody, { width: maxLength });
+                const splitText = warpedText.split("\n");
 
-                if (msgBody.length >= maxLength) {
-                    partOne = msgBody.substring(0,maxLength);
-                    partTwo = msgBody.substring(maxLength, maxLength*2);
-                    
-                    if (msgBody.length >= maxLength*2) {
-                        partThree = msgBody.substring(maxLength*2, maxLength*3);
+                if (splitText[0] != undefined) {
+                    partOne = splitText[0];
+
+                    if (splitText[1] != undefined) {
+                        partTwo = splitText[1];
+
+                        if (splitText[2] != undefined) {
+                            partThree = splitText[2];
+                        }
                     }
-                    
-                } else {
-                    partOne = msgBody
                 }
 
                 font.load(() => {
