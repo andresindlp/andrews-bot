@@ -75,12 +75,41 @@ client.on('message', async (message) => {
                     Chat.clearState();
                     message.react("❌");
                 }
+            } else if (quotedMsg.type == "sticker") {
+                try {
+                    Chat.sendStateTyping()
+                    const media = await quotedMsg.downloadMedia();
+                    client.sendMessage(message.from, media).then(() => {
+                        Chat.clearState();
+                        quotedMsg.react("✅");
+                        message.react("✅");
+                    });
+                } catch {
+                    Chat.clearState();
+                    message.react("❌");
+                }
             } else {
                 message.react("❌");
             }
         }
         else {
             message.react("❌");
+        }
+    } else if (message.body == ".reveal" && Chat.isGroup && message.hasQuotedMsg)  {
+        const quotedMsg = await message.getQuotedMessage()
+        if (quotedMsg.type == "image") {
+            try {
+                Chat.sendStateTyping()
+                const media = await quotedMsg.downloadMedia();
+                client.sendMessage(message.from, media).then(() => {
+                    Chat.clearState();
+                    quotedMsg.react("✅");
+                    message.react("✅");
+                });
+            } catch {
+                Chat.clearState();
+                message.react("❌");
+            }
         }
     }
     else {
