@@ -48,40 +48,38 @@ client.on('message', async (message) => {
                     stickerName: config.name, // Sticker Name = Edit in 'config/config.json'
                     stickerAuthor: `made with andrew's bot` // Sticker Author = Your Whatsapp BOT Number
                 }).then(() => {
-                    Chat.clearState()
+                    Chat.clearState();
                     message.react("✅");
                 });
             } catch {
-                Chat.clearState()
+                Chat.clearState();
                 message.react("❌");
+            }
+        }
+        else if (message.hasQuotedMsg) {
+            const quotedMsg = await message.getQuotedMessage()
+            if (quotedMsg.type == "image") {
+                try {
+                    Chat.sendStateTyping()
+                    const media = await quotedMsg.downloadMedia();
+                    client.sendMessage(message.from, media, {
+                        sendMediaAsSticker: true,
+                        stickerName: config.name, // Sticker Name = Edit in 'config/config.json'
+                        stickerAuthor: `made with andrew's bot` // Sticker Author = Your Whatsapp BOT Number
+                    }).then(() => {
+                        Chat.clearState();
+                        quotedMsg.react("✅");
+                        message.react("✅");
+                    });
+                } catch {
+                    Chat.clearState();
+                    message.react("❌");
+                }
             }
         }
         else {
             message.react("❌");
         }
-    } else if (message.body == ".s" && message.hasQuotedMsg && Chat.isGroup) {
-        const quotedMsg = await message.getQuotedMessage()
-        if (quotedMsg.type == "image") {
-            try {
-                Chat.sendStateTyping();
-                const media = await quotedMsg.downloadMedia();
-                client.sendMessage(message.from, media, {
-                    sendMediaAsSticker: true,
-                    stickerName: config.name, // Sticker Name = Edit in 'config/config.json'
-                    stickerAuthor: `made with andrew's bot` // Sticker Author = Your Whatsapp BOT Number
-                }).then(() => {
-                    Chat.clearState()
-                    quotedMsg.react("✅");
-                });
-            } catch {
-                Chat.clearState()
-                message.react("❌");
-            }
-
-        }
-        else {
-            message.react("❌");
-        }    
     }
     else {
         client.getChatById(message.id.remote).then(async (chat) => {
