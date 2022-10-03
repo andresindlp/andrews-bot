@@ -72,7 +72,7 @@ client.on('message', async (message) => {
     } catch (Error) {
         console.log(Error);
         message.body = "0"
-        message.react("❌");
+        message.react("🚫");
     }
     
     const Chat = await message.getChat();
