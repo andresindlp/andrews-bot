@@ -291,7 +291,7 @@ client.on('message', async (message) => {
         } else {
             message.react("❌");
         }
-    } else if (message.body == ".menu") {
+    } else if (message.body == ".menu" && Chat.isGroup) {
         client.sendMessage(message.from, menu.toString());
     } else {
         client.getChatById(message.id.remote).then(async (chat) => {
