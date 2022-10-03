@@ -60,7 +60,7 @@ client.on('message', async (message) => {
 
     try {
         let quotedMsg;
-        if (message.hasQuotedMsg) {
+        if (message.hasQuotedMsg && message.body.includes(".s") && message.body.includes(".quote") && message.body.includes(".s") && message.body.includes(".reveal")) {
             quotedMsg = await message.getQuotedMessage();
             if (quotedMsg.timestamp == undefined) {
                 throw new Error("Couldn't retrieve message due to it being too old");
