@@ -53,7 +53,6 @@ client.on('ready', () => {
 });
 
 client.on('message', async (message) => {
-    console.log(message.body.substring(0,5))
     const Chat = await message.getChat();
     if (message.body == ".s" && Chat.isGroup) {
         if (message.type == "image") {
@@ -201,7 +200,7 @@ client.on('message', async (message) => {
             try {
                 let msgAuthor;
                 Chat.sendStateTyping();
-                
+
                 if (message.body.substring(7,8) == "-") {
                     msgAuthor = " ";
                 } else {
