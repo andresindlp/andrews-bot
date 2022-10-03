@@ -58,15 +58,21 @@ client.on('ready', () => {
 
 client.on('message', async (message) => {
 
-    try {
-        let quotedMsg;
-        if (message.hasQuotedMsg && message.body.includes(".s") && message.body.includes(".quote") && message.body.includes(".s") && message.body.includes(".reveal")) {
-            quotedMsg = await message.getQuotedMessage();
-            if (quotedMsg.timestamp == undefined) {
-                throw new Error("Couldn't retrieve message due to it being too old");
-            }
-        } else {
+    let quotedMsg;
+    let Chat;
 
+    try {
+        
+        if (message.hasQuotedMsg) {
+            if (message.body.includes(".s") || message.body.includes(".quote") || message.body.includes(".reveal")) {
+                quotedMsg = await message.getQuotedMessage();
+                if (quotedMsg.timestamp == undefined) {
+                    throw new Error("Couldn't retrieve message due to it being too old");
+                }
+            }
+            
+        } else {
+            Chat = await message.getChat();
         }
         
     } catch (Error) {
@@ -75,7 +81,7 @@ client.on('message', async (message) => {
         message.react("🚫");
     }
     
-    const Chat = await message.getChat();
+    
 
     if (message.body == ".s" && Chat.isGroup) {
         if (message.type == "image") {
