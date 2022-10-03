@@ -33,6 +33,10 @@ function getTextWidth(text, font) {
     return metrics.width;
 };
 
+function skiperror() {
+    return 0;
+}
+
 client.on('qr', (qr) => {
     console.log(`[${moment().tz(config.timezone).format('HH:mm:ss')}] Scan the QR below : `);
     qrcode.generate(qr, { small: true });
@@ -53,7 +57,26 @@ client.on('ready', () => {
 });
 
 client.on('message', async (message) => {
+
+    try {
+        let quotedMsg;
+        if (message.hasQuotedMsg) {
+            quotedMsg = await message.getQuotedMessage();
+            if (quotedMsg.timestamp == undefined) {
+                throw new Error("Couldn't retrieve message due to it being too old");
+            }
+        } else {
+
+        }
+        
+    } catch (Error) {
+        console.log(Error);
+        message.body = "0"
+        message.react("❌");
+    }
+    
     const Chat = await message.getChat();
+
     if (message.body == ".s" && Chat.isGroup) {
         if (message.type == "image") {
             try {
