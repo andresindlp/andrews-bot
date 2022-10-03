@@ -1,0 +1,9 @@
+*═══andrew's bot menu═══*
+
+*.s*  Sticker <-> Imagen
+
+*.reveal*  Revela fotos de única visualización
+
+*.quote*  Genera un sticker a partir de un mensaje
+
+*.aquote _<nombre>_*  Genera un sticker a partir de un mensaje con un nombre personalizado

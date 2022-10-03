@@ -20,7 +20,18 @@ const client = new Client({
 const config = require('./config/config.json');
 const template = "./files/template_msg.png";
 const filepath = "./files/output.png";
-const font = PImage.registerFont("./files/arial_bold.ttf","ArialBlack");
+const font = PImage.registerFont("./files/arial_bold.ttf","ArialBlack",);
+const menu = fs.readFileSync("./files/menu.txt");
+
+function getTextWidth(text, font) {
+    // if given, use cached canvas for better performance
+    // else, create new canvas
+    var canvas = getTextWidth.canvas || (getTextWidth.canvas = document.createElement("canvas"));
+    var context = canvas.getContext("2d");
+    context.font = font;
+    var metrics = context.measureText(text);
+    return metrics.width;
+};
 
 client.on('qr', (qr) => {
     console.log(`[${moment().tz(config.timezone).format('HH:mm:ss')}] Scan the QR below : `);
@@ -42,6 +53,7 @@ client.on('ready', () => {
 });
 
 client.on('message', async (message) => {
+    console.log(message.body.substring(0,5))
     const Chat = await message.getChat();
     if (message.body == ".s" && Chat.isGroup) {
         if (message.type == "image") {
@@ -116,19 +128,26 @@ client.on('message', async (message) => {
                 message.react("❌");
             }
         }
-    } else if (message.body == ".quote" && Chat.isGroup && message.hasQuotedMsg) {
-        const quotedMsg = await message.getQuotedMessage();
-        if (quotedMsg.type == "chat") {
+    } else if (message.body.substring(0,6) == ".quote" && Chat.isGroup && message.hasQuotedMsg) {
+        const quotedMsg = await message.getQuotedMessage(); 
+        if (quotedMsg.type == "chat" && message.body == ".quote") {
             try {
                 Chat.sendStateTyping();
                 const authorID = await quotedMsg.getContact();
+                const msgTime = message.timestamp * 1000;
+                var d = new Date(msgTime);
+                const hours = d.getHours();
+                const minutes = d.getMinutes();
+                const time = hours + ":" + String(minutes).padStart(2, "0");
                 const msgAuthor = authorID.pushname;
                 const msgBody = quotedMsg.body;
                 const maxLength = 21;
                 let partOne = " ";
                 let partTwo = " ";
                 let partThree = " ";
-                
+
+
+
                 const warpedText = wordwrap.wrap(msgBody, { width: maxLength });
                 const splitText = warpedText.split("\n");
 
@@ -152,9 +171,77 @@ client.on('message', async (message) => {
                         ctx.font = "36pt ArialBlack";
                         ctx.fillText(msgAuthor, 50, 210);
                         ctx.fillStyle = "#ffffff";
-                        ctx.fillText(partOne, 50, 260);
-                        ctx.fillText(partTwo, 50, 295);     
-                        ctx.fillText(partThree, 50, 330);
+                        ctx.font = "36pt Arial";
+                        ctx.fillText(partOne, 50, 260, 440);
+                        ctx.fillText(partTwo, 50, 295, 440);     
+                        ctx.fillText(partThree, 50, 330, 440);
+                        ctx.fillStyle = "#95B7B9";
+                        ctx.font = "24pt Arial";
+                        ctx.fillText(time, 420, 340);
+                        PImage.encodePNGToStream(img, fs.createWriteStream(filepath)).then(()=>{
+                            const media = MessageMedia.fromFilePath(filepath);
+                            client.sendMessage(message.from, media, {
+                                sendMediaAsSticker: true,
+                                stickerName: config.name, // Sticker Name = Edit in 'config/config.json'
+                                stickerAuthor: `made with andrew's bot` // Sticker Author = Your Whatsapp BOT Number
+                            }).then(() => {
+                                Chat.clearState();
+                                quotedMsg.react("✅");
+                                message.react("✅");
+                            });
+                        });
+                    });
+                });
+            } catch {
+                Chat.clearState();
+                message.react("❌");
+            }
+        } else if (quotedMsg.type == "chat" && message.body != ".quote") {
+
+            try {
+                let msgAuthor;
+                Chat.sendStateTyping();
+                
+                if (message.body.substring(7,8) == "-") {
+                    msgAuthor = " ";
+                } else {
+                    msgAuthor = message.body.substring(7);
+                }
+
+                const msgBody = quotedMsg.body;
+                const maxLength = 21;
+                let partOne = " ";
+                let partTwo = " ";
+                let partThree = " ";
+
+                
+
+                const warpedText = wordwrap.wrap(msgBody, { width: maxLength });
+                const splitText = warpedText.split("\n");
+
+                if (splitText[0] != undefined) {
+                    partOne = splitText[0];
+
+                    if (splitText[1] != undefined) {
+                        partTwo = splitText[1];
+
+                        if (splitText[2] != undefined) {
+                            partThree = splitText[2];
+
+                        }
+                    }
+                }
+
+                font.load(() => {
+                    PImage.decodePNGFromStream(fs.createReadStream(template)).then((img) => {
+                        const ctx = img.getContext("2d");
+                        ctx.fillStyle = "#9a9af1";
+                        ctx.font = "36pt ArialBlack";
+                        ctx.fillText(msgAuthor, 50, 210);
+                        ctx.fillStyle = "#ffffff";
+                        ctx.fillText(partOne, 50, 260, 440);
+                        ctx.fillText(partTwo, 50, 295, 440);     
+                        ctx.fillText(partThree, 50, 330, 440);
                         PImage.encodePNGToStream(img, fs.createWriteStream(filepath)).then(()=>{
                             const media = MessageMedia.fromFilePath(filepath);
                             client.sendMessage(message.from, media, {
@@ -176,6 +263,8 @@ client.on('message', async (message) => {
         } else {
             message.react("❌");
         }
+    } else if (message.body == ".menu") {
+        client.sendMessage(message.from, menu.toString());
     } else {
         client.getChatById(message.id.remote).then(async (chat) => {
             await chat.sendSeen();
