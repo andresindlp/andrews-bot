@@ -138,7 +138,13 @@ client.on('message', async (message) => {
                 const hours = d.getHours();
                 const minutes = d.getMinutes();
                 const time = hours + ":" + String(minutes).padStart(2, "0");
-                const msgAuthor = authorID.pushname;
+                let msgAuthor;
+                msgAuthor = authorID.pushname;
+                if (msgAuthor == undefined) {
+                    message.react("❌");
+                    Chat.clearState();
+                    return
+                }
                 const msgBody = quotedMsg.body;
                 const maxLength = 21;
                 let partOne = " ";
