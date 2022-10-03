@@ -59,6 +59,7 @@ client.on('ready', () => {
 client.on('message', async (message) => {
 
     let quotedMsg;
+
     let Chat;
 
     try {
@@ -72,7 +73,7 @@ client.on('message', async (message) => {
             }
             
         } else {
-            Chat = await message.getChat();
+            
         }
         
     } catch (Error) {
@@ -81,7 +82,7 @@ client.on('message', async (message) => {
         message.react("🚫");
     }
     
-    
+    Chat = await message.getChat();
 
     if (message.body == ".s" && Chat.isGroup) {
         if (message.type == "image") {
