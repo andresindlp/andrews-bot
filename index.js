@@ -85,7 +85,7 @@ client.on('message', async (message) => {
     Chat = await message.getChat();
 
     if (message.body == ".s" && Chat.isGroup) {
-        if (message.type == "image") {
+        if (message.type == "image" | message.type == "video") {
             try {
                 Chat.sendStateTyping();
                 const media = await message.downloadMedia();
@@ -101,10 +101,9 @@ client.on('message', async (message) => {
                 Chat.clearState();
                 message.react("❌");
             }
-        }
-        else if (message.hasQuotedMsg) {
+        } else if (message.hasQuotedMsg) {
             const quotedMsg = await message.getQuotedMessage();
-            if (quotedMsg.type == "image") {
+            if (quotedMsg.type == "image" | quotedMsg.type == "video") {
                 try {
                     Chat.sendStateTyping()
                     const media = await quotedMsg.downloadMedia();
@@ -300,7 +299,9 @@ client.on('message', async (message) => {
         }
     } else if (message.body == ".menu" && Chat.isGroup) {
         client.sendMessage(message.from, menu.toString());
-    } else {
+    } else if (message.body == ".v" && Chat.isGroup){
+
+    }else {
         client.getChatById(message.id.remote).then(async (chat) => {
             await chat.sendSeen();
         });
