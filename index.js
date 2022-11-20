@@ -1,4 +1,5 @@
 const { Client, LocalAuth, MessageMedia } = require('whatsapp-web.js');
+const youtubedl = require('youtube-dl-exec')
 const ffmpeg = require('fluent-ffmpeg');
 const qrcode = require('qrcode-terminal');
 const moment = require('moment-timezone');
@@ -11,8 +12,7 @@ const wordwrap = require('wordwrapjs');
 const client = new Client({
     restartOnAuthFail: true,
     puppeteer: {
-        headless: true,
-        args: [ '--no-sandbox', '--disable-setuid-sandbox' ]
+        executablePath: "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
     },
     authStrategy: new LocalAuth({ clientId: "client" })
 });
@@ -32,10 +32,6 @@ function getTextWidth(text, font) {
     var metrics = context.measureText(text);
     return metrics.width;
 };
-
-function skiperror() {
-    return 0;
-}
 
 client.on('qr', (qr) => {
     console.log(`[${moment().tz(config.timezone).format('HH:mm:ss')}] Scan the QR below : `);
@@ -297,11 +293,21 @@ client.on('message', async (message) => {
         } else {
             message.react("❌");
         }
+    } else if (message.body.substring(0,9) == ".download" && Chat.isGroup) {
+        const url = message.body.substring(10);
+        try{
+            await youtubedl(url, {output: "./files/vid.mp4"})
+            await client.sendMessage(message.from, MessageMedia.fromFilePath("./files/vid.mp4"), { sendMediaAsDocument: false });
+            fs.unlinkSync("./files/vid.mp4")
+        } catch (err){
+            message.react("❌");
+        }
+        
+        
     } else if (message.body == ".menu" && Chat.isGroup) {
         client.sendMessage(message.from, menu.toString());
-    } else if (message.body == ".v" && Chat.isGroup){
-
-    }else {
+        
+    } else {
         client.getChatById(message.id.remote).then(async (chat) => {
             await chat.sendSeen();
         });
