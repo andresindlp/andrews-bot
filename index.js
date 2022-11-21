@@ -303,6 +303,14 @@ client.on('message', async (message) => {
             fs.unlinkSync("./files/vid." + jsonData.ext);
             fs.unlinkSync("./files/vid.info.json");
         } catch (err) {
+            try {
+                await client.sendMessage(message.from, MessageMedia.fromFilePath("./files/vid." + jsonData.ext), { sendMediaAsDocument: true });
+                fs.unlinkSync("./files/vid." + jsonData.ext);
+                fs.unlinkSync("./files/vid.info.json");
+            } catch (err) {
+                console.log(err)
+            message.react("❌");
+            }
             console.log(err)
             message.react("❌");
         }
