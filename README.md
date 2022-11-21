@@ -1,1 +1,1 @@
-# stickerbot
+# Andrew's WhatsApp Bot
