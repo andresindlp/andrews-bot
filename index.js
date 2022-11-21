@@ -296,10 +296,14 @@ client.on('message', async (message) => {
     } else if (message.body.substring(0,9) == ".download" && Chat.isGroup) {
         const url = message.body.substring(10);
         try{
-            await youtubedl(url, {output: "./files/vid.mp4"})
-            await client.sendMessage(message.from, MessageMedia.fromFilePath("./files/vid.mp4"), { sendMediaAsDocument: false });
-            fs.unlinkSync("./files/vid.mp4")
-        } catch (err){
+            await youtubedl(url, {output: "vid.%(ext)s", paths: "./files/", writeInfoJson: true, noCheckCertificates: true, noWarnings: true, maxFilesize: "60M"});
+            jsonFile = fs.readFileSync("./files/vid.info.json");
+            jsonData = JSON.parse(jsonFile)
+            await client.sendMessage(message.from, MessageMedia.fromFilePath("./files/vid." + jsonData.ext), { sendMediaAsDocument: false });
+            fs.unlinkSync("./files/vid." + jsonData.ext);
+            fs.unlinkSync("./files/vid.info.json");
+        } catch (err) {
+            console.log(err)
             message.react("❌");
         }
         
