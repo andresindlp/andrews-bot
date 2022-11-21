@@ -12,6 +12,7 @@ const wordwrap = require('wordwrapjs');
 const client = new Client({
     restartOnAuthFail: true,
     puppeteer: {
+        headless: true,
         executablePath: "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
     },
     authStrategy: new LocalAuth({ clientId: "client" })
@@ -294,6 +295,7 @@ client.on('message', async (message) => {
             message.react("❌");
         }
     } else if (message.body.substring(0,9) == ".download" && Chat.isGroup) {
+        Chat.sendStateRecording();
         const url = message.body.substring(10);
         try{
             await youtubedl(url, {output: "vid.%(ext)s", paths: "./files/", writeInfoJson: true, noCheckCertificates: true, noWarnings: true, maxFilesize: "60M"});
@@ -302,17 +304,20 @@ client.on('message', async (message) => {
             await client.sendMessage(message.from, MessageMedia.fromFilePath("./files/vid." + jsonData.ext), { sendMediaAsDocument: false });
             fs.unlinkSync("./files/vid." + jsonData.ext);
             fs.unlinkSync("./files/vid.info.json");
+            message.react("✅");
+            Chat.clearState();
         } catch (err) {
             try {
                 await client.sendMessage(message.from, MessageMedia.fromFilePath("./files/vid." + jsonData.ext), { sendMediaAsDocument: true });
                 fs.unlinkSync("./files/vid." + jsonData.ext);
                 fs.unlinkSync("./files/vid.info.json");
+                message.react("🟠");
+                Chat.clearState();
             } catch (err) {
                 console.log(err)
             message.react("❌");
+            Chat.clearState();
             }
-            console.log(err)
-            message.react("❌");
         }
         
         
