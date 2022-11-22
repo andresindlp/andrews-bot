@@ -1,13 +1,15 @@
 const { Client, LocalAuth, MessageMedia } = require('whatsapp-web.js');
 const youtubedl = require('youtube-dl-exec')
 const ffmpeg = require('fluent-ffmpeg');
+const colors = require('colors');
 const qrcode = require('qrcode-terminal');
 const moment = require('moment-timezone');
-const colors = require('colors');
 const fs = require('fs');
 const PImage = require('pureimage');
 const wordwrap = require('wordwrapjs');
+const googleTTS = require("node-google-tts-api");
 
+const tts = new googleTTS();
 
 const client = new Client({
     restartOnAuthFail: true,
@@ -320,6 +322,26 @@ client.on('message', async (message) => {
             }
         }
         
+        
+    } else if (message.body.substring(0,4) == ".tts" && Chat.isGroup){
+        Chat.sendStateRecording()
+        const textToSpeech = message.body.substring(5)
+        try {
+            tts.get({
+                text: String(textToSpeech),
+                lang: "es"
+            }).then(data => {
+                fs.writeFileSync("./files/audio.mp3", data)
+            })
+    
+            await client.sendMessage(message.from, MessageMedia.fromFilePath("./files/audio.mp3"));
+            message.react("✅");
+
+            fs.unlinkSync("./files/audio.mp3")
+        } catch (err) {
+            console.log(err)
+            message.react("❌");
+        }
         
     } else if (message.body == ".menu" && Chat.isGroup) {
         client.sendMessage(message.from, menu.toString());

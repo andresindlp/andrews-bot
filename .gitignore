@@ -4,3 +4,4 @@ files/output.png
 files/vid.*
 package-lock.json
 .DS_Store
+files/audio.mp3
