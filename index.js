@@ -327,7 +327,7 @@ client.on('message', async (message) => {
         Chat.sendStateRecording()
         const textToSpeech = message.body.substring(5)
         try {
-            tts.get({
+            await tts.get({
                 text: String(textToSpeech),
                 lang: "es"
             }).then(data => {
