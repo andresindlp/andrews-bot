@@ -135,7 +135,7 @@ client.on('message', async (message) => {
             if (message.hasQuotedMsg) {msg = await message.getQuotedMessage()} else {message.react("❌"); break;}
 
             // if quoted message is not type=chat, exit
-            if (msg.type != "chat") {exit}
+            if (msg.type != "chat") {message.react("❌"); break;}
 
             switch (req[1]) {
                 default:
