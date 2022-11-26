@@ -15,8 +15,7 @@ const tts = new googleTTS();
 const client = new Client({
     restartOnAuthFail: true,
     puppeteer: {
-        headless: true,
-        executablePath: "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
+        headless: true
     },
     authStrategy: new LocalAuth({ clientId: "client" })
 });
@@ -254,7 +253,7 @@ client.on('message', async (message) => {
             } else {
                 message.react("❌");
             }
-        } else if (message.body.substring(0,9) == ".download") {
+        /* } else if (message.body.substring(0,9) == ".download") {
             Chat.sendStateRecording();
             const url = message.body.substring(10);
             try{
@@ -280,7 +279,7 @@ client.on('message', async (message) => {
                 }
             }
             
-            
+          */   
         } else if (message.body.substring(0,4) == ".tts"){
             Chat.sendStateRecording()
             const textToSpeech = message.body.substring(5)
