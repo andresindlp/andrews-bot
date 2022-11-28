@@ -22,6 +22,7 @@ const client = new Client({
 });
 
 const config = require('./config/config.json');
+const secrets = require("./config/secrets.json");
 const template = "./files/template_msg.png";
 const filepath = "./files/output.png";
 const font = PImage.registerFont("./files/arial_bold.ttf","ArialBlack",);
@@ -53,7 +54,27 @@ client.on('message', async (message) => {
     const Chat = await message.getChat();
     const req = message.body.split(" ");
 
-    console.log(req[0])
+    console.log(req.join(" "))
+
+    // TO BE EXECUTED IN PRIVATE CHATS
+
+    switch (req[0]) {
+        case ".join":
+            var contact = await Chat.getContact()
+            if (contact.number == secrets.admin) {
+                try {
+                    console.log("1")
+                    var link = req[1].split("/").slice(-1);
+                    await client.acceptInvite(String(link));
+                    message.react("✅");
+                } catch (e) {
+                    console.log(e)
+                    message.react("❌");
+                }
+            }
+    }
+
+    // TO BE EXECUTED ONLY 
 
     if (Chat.isGroup == false) {
         return undefined;
@@ -103,6 +124,7 @@ client.on('message', async (message) => {
                     message.react("❌");
 
             }
+            break;
         case ".reveal":
         case ".r":
             
@@ -127,7 +149,7 @@ client.on('message', async (message) => {
                 default:
                     message.react("❌");
             }
-            
+            break;
         case ".q":
         case ".quote":
 
@@ -137,8 +159,10 @@ client.on('message', async (message) => {
             // if quoted message is not type=chat, exit
             if (msg.type != "chat") {message.react("❌"); break;}
 
+
+
             switch (req[1]) {
-                default:
+                case undefined:
                     try {
                         Chat.sendStateTyping();
                         const authorID = await msg.getContact();
@@ -159,8 +183,6 @@ client.on('message', async (message) => {
                         let partOne = " ";
                         let partTwo = " ";
                         let partThree = " ";
-        
-        
         
                         const warpedText = wordwrap.wrap(msgBody, { width: maxLength });
                         const splitText = warpedText.split("\n");
@@ -206,131 +228,147 @@ client.on('message', async (message) => {
                                 });
                             });
                         });
+                        break;
                     } catch {
                         Chat.clearState();
                         message.react("❌");
                     }
                 case "-":
-                case "":
-                
-            }
-
-
-            if (msg.type == "chat") {
-                
-            } else if (msg.type == "chat" && message.body != ".quote") {
-    
-                try {
-                    let msgAuthor;
-                    Chat.sendStateTyping();
-    
-                    if (message.body.substring(7,8) == "-") {
-                        msgAuthor = " ";
-                    } else {
-                        msgAuthor = message.body.substring(7);
-                    }
-    
-                    const msgBody = msg.body;
-                    const maxLength = 21;
-                    let partOne = " ";
-                    let partTwo = " ";
-                    let partThree = " ";
-    
-                    
-    
-                    const warpedText = wordwrap.wrap(msgBody, { width: maxLength });
-                    const splitText = warpedText.split("\n");
-    
-                    if (splitText[0] != undefined) {
-                        partOne = splitText[0];
-    
-                        if (splitText[1] != undefined) {
-                            partTwo = splitText[1];
-    
-                            if (splitText[2] != undefined) {
-                                partThree = splitText[2];
-    
+                    try {
+                        var msgAuthor = " ";
+                        Chat.sendStateTyping();
+                        const msgBody = msg.body;
+                        const maxLength = 21;
+                        let partOne = " ";
+                        let partTwo = " ";
+                        let partThree = " ";
+        
+                        
+        
+                        const warpedText = wordwrap.wrap(msgBody, { width: maxLength });
+                        const splitText = warpedText.split("\n");
+        
+                        if (splitText[0] != undefined) {
+                            partOne = splitText[0];
+        
+                            if (splitText[1] != undefined) {
+                                partTwo = splitText[1];
+        
+                                if (splitText[2] != undefined) {
+                                    partThree = splitText[2];
+        
+                                }
                             }
                         }
-                    }
-    
-                    font.load(() => {
-                        PImage.decodePNGFromStream(fs.createReadStream(template)).then((img) => {
-                            const ctx = img.getContext("2d");
-                            ctx.fillStyle = "#9a9af1";
-                            ctx.font = "36pt ArialBlack";
-                            ctx.fillText(msgAuthor, 50, 210);
-                            ctx.fillStyle = "#ffffff";
-                            ctx.fillText(partOne, 50, 260, 440);
-                            ctx.fillText(partTwo, 50, 295, 440);     
-                            ctx.fillText(partThree, 50, 330, 440);
-                            PImage.encodePNGToStream(img, fs.createWriteStream(filepath)).then(()=>{
-                                const media = MessageMedia.fromFilePath(filepath);
-                                client.sendMessage(message.from, media, {
-                                    sendMediaAsSticker: true,
-                                    stickerName: config.name, // Sticker Name = Edit in 'config/config.json'
-                                    stickerAuthor: `made with andrew's bot` // Sticker Author = Your Whatsapp BOT Number
-                                }).then(() => {
-                                    Chat.clearState();
-                                    msg.react("✅");
-                                    message.react("✅");
+        
+                        font.load(() => {
+                            PImage.decodePNGFromStream(fs.createReadStream(template)).then((img) => {
+                                const ctx = img.getContext("2d");
+                                ctx.fillStyle = "#9a9af1";
+                                ctx.font = "36pt ArialBlack";
+                                ctx.fillText(msgAuthor, 50, 210);
+                                ctx.fillStyle = "#ffffff";
+                                ctx.fillText(partOne, 50, 260, 440);
+                                ctx.fillText(partTwo, 50, 295, 440);     
+                                ctx.fillText(partThree, 50, 330, 440);
+                                PImage.encodePNGToStream(img, fs.createWriteStream(filepath)).then(()=>{
+                                    const media = MessageMedia.fromFilePath(filepath);
+                                    client.sendMessage(message.from, media, {
+                                        sendMediaAsSticker: true,
+                                        stickerName: config.name, // Sticker Name = Edit in 'config/config.json'
+                                        stickerAuthor: `made with andrew's bot` // Sticker Author = Your Whatsapp BOT Number
+                                    }).then(() => {
+                                        Chat.clearState();
+                                        msg.react("✅");
+                                        message.react("✅");
+                                    });
                                 });
                             });
                         });
-                    });
-                } catch {
-                    Chat.clearState();
-                    message.react("❌");
-                }
-            } else {
-                message.react("❌");
-            }
-        case ".d" | ".download":
-        case ".tts" | ".texttospeech":
-        case ".menu":
-    }
-    if (Chat.isGroup) {
-        if (message.body.substring(0,2) == ".s") {
-
-
-            
-        } else if (message.body.substring(0,7) == ".reveal" && message.hasQuotedMsg)  {
-            const msg = await message.getQuotedMessage();
-            if (msg.type == "image") {
+                        break;
+                    } catch {
+                        Chat.clearState();
+                        message.react("❌");
+                    }
+                default:
+                    try {
+                        var msgAuthor = req.slice(1).join(" ");
+                        Chat.sendStateTyping();
+                        const msgBody = msg.body;
+                        const maxLength = 21;
+                        let partOne = " ";
+                        let partTwo = " ";
+                        let partThree = " ";
+        
+                        
+        
+                        const warpedText = wordwrap.wrap(msgBody, { width: maxLength });
+                        const splitText = warpedText.split("\n");
+        
+                        if (splitText[0] != undefined) {
+                            partOne = splitText[0];
+        
+                            if (splitText[1] != undefined) {
+                                partTwo = splitText[1];
+        
+                                if (splitText[2] != undefined) {
+                                    partThree = splitText[2];
+        
+                                }
+                            }
+                        }
+        
+                        font.load(() => {
+                            PImage.decodePNGFromStream(fs.createReadStream(template)).then((img) => {
+                                const ctx = img.getContext("2d");
+                                ctx.fillStyle = "#9a9af1";
+                                ctx.font = "36pt ArialBlack";
+                                ctx.fillText(msgAuthor, 50, 210);
+                                ctx.fillStyle = "#ffffff";
+                                ctx.fillText(partOne, 50, 260, 440);
+                                ctx.fillText(partTwo, 50, 295, 440);     
+                                ctx.fillText(partThree, 50, 330, 440);
+                                PImage.encodePNGToStream(img, fs.createWriteStream(filepath)).then(()=>{
+                                    const media = MessageMedia.fromFilePath(filepath);
+                                    client.sendMessage(message.from, media, {
+                                        sendMediaAsSticker: true,
+                                        stickerName: config.name, // Sticker Name = Edit in 'config/config.json'
+                                        stickerAuthor: `made with andrew's bot` // Sticker Author = Your Whatsapp BOT Number
+                                    }).then(() => {
+                                        Chat.clearState();
+                                        msg.react("✅");
+                                        message.react("✅");
+                                    });
+                                });
+                            });
+                        });
+                        break;
+                    } catch {
+                        Chat.clearState();
+                        message.react("❌");
+                    };
                 
-            }
-        } else if (message.body.substring(0,6) == ".quote" && message.hasQuotedMsg) {
-            
-        } else if (message.body.substring(0,9) == ".download") {
-            Chat.sendStateRecording();
-            const url = message.body.substring(10);
-            try{
-                await youtubedl(url, {output: "vid.%(ext)s", paths: "./files/", writeInfoJson: true, noCheckCertificates: true, noWarnings: true, maxFilesize: "60M"});
-                jsonFile = fs.readFileSync("./files/vid.info.json");
-                jsonData = JSON.parse(jsonFile)
-                await client.sendMessage(message.from, MessageMedia.fromFilePath("./files/vid." + jsonData.ext), { sendMediaAsDocument: false });
-                fs.unlinkSync("./files/vid." + jsonData.ext);
-                fs.unlinkSync("./files/vid.info.json");
-                message.react("✅");
-                Chat.clearState();
-            } catch (err) {
-                try {
-                    await client.sendMessage(message.from, MessageMedia.fromFilePath("./files/vid." + jsonData.ext), { sendMediaAsDocument: true });
-                    fs.unlinkSync("./files/vid." + jsonData.ext);
-                    fs.unlinkSync("./files/vid.info.json");
-                    message.react("🟠");
-                    Chat.clearState();
-                } catch (err) {
-                    console.log(err)
-                message.react("❌");
-                Chat.clearState();
-                }
+            };
+            break;
+        case ".tts":
+        case ".texttospeech":
+            switch (req[1]) {
+                default:
+                    var textToSpeech = req.slice(1).join(" ")
+                    break;
+                case undefined:
+                    // try to get the quoted msg, else exit case
+                    if (message.hasQuotedMsg) {msg = await message.getQuotedMessage()} else {message.react("❌"); break;}
+                    // if quoted message is not type=chat, exit
+                    if (msg.type != "chat") {message.react("❌"); break;}
+                    
+                    var textToSpeech = msg.body
+                    break;
             }
             
-            
-        } else if (message.body.substring(0,4) == ".tts"){
+            if (textToSpeech == undefined) {break}
+
             Chat.sendStateRecording()
-            const textToSpeech = message.body.substring(5)
             try {
                 await tts.get({
                     text: String(textToSpeech),
@@ -341,23 +379,31 @@ client.on('message', async (message) => {
         
                 await client.sendMessage(message.from, MessageMedia.fromFilePath("./files/audio.mp3"));
                 message.react("✅");
-    
+                Chat.clearState();
                 fs.unlinkSync("./files/audio.mp3")
             } catch (err) {
-                console.log(err)
+                Chat.clearState();
+                console.log(err);
                 message.react("❌");
             }
-            
-        } else if (message.body == ".menu") {
-            client.sendMessage(message.from, menu.toString());
-            
-        } else {
+            break;
+        case ".menu":
+            try {
+                client.sendMessage(message.from, menu.toString());
+                message.react("✅");
+            } catch (e) {
+                console.log(e);
+                message.react("❌");
+            }
+            break;
+        default:
             client.getChatById(message.id.remote).then(async (chat) => {
                 await chat.sendSeen();
             });
-        }
+        break;
     }
-    
+
+ 
 });
 
 client.initialize();
