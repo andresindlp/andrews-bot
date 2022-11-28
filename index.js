@@ -16,7 +16,7 @@ const client = new Client({
     restartOnAuthFail: true,
     puppeteer: {
         headless: true,
-        executablePath: "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
+        args: [ '--no-sandbox', '--disable-setuid-sandbox' ]
     },
     authStrategy: new LocalAuth({ clientId: "client" })
 });
