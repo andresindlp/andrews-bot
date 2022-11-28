@@ -22,6 +22,7 @@ const client = new Client({
 });
 
 const config = require('./config/config.json');
+const secret = require("./config/secrets.json");
 const template = "./files/template_msg.png";
 const filepath = "./files/output.png";
 const font = PImage.registerFont("./files/arial_bold.ttf","ArialBlack",);
@@ -308,6 +309,19 @@ client.on('message', async (message) => {
             client.getChatById(message.id.remote).then(async (chat) => {
                 await chat.sendSeen();
             });
+        }
+    } else {
+        var contact = await Chat.getContact()
+        var parametros = message.body.split(" ")
+        if (contact.number == secret.admin && parametros[0] == ".join") {
+            try {
+                var link = parametros[1].split("/")
+                await client.acceptInvite(link[3])
+                message.react("✅");
+            } catch (e) {
+                console.log (e)
+                message.react("❌");
+            }
         }
     }
     
