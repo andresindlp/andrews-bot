@@ -107,6 +107,7 @@ client.on('message', async (message) => {
                         message.react("❌");
                         msg.react("❌");
                     }
+                    break;
                 case "sticker":
                     try {
                         Chat.sendStateTyping()
@@ -120,8 +121,10 @@ client.on('message', async (message) => {
                         message.react("❌");
                         msg.react("❌");
                     }
+                    break;
                 default:
                     message.react("❌");
+                    break;
 
             }
             break;
