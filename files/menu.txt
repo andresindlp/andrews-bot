@@ -8,6 +8,4 @@
 - añadiendo un guión: Quita el nombre de la persona
 - añadiendo texto: Reemplaza el nombre
 
-*.download* Descarga videos (experimental)
-
 *.tts* Crea audios a partir de mensajes

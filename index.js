@@ -8,6 +8,7 @@ const fs = require('fs');
 const PImage = require('pureimage');
 const wordwrap = require('wordwrapjs');
 const googleTTS = require("node-google-tts-api");
+const editJsonFile = require("edit-json-file");
 
 const tts = new googleTTS();
 
@@ -74,11 +75,23 @@ client.on('message', async (message) => {
             }
     }
 
-    // TO BE EXECUTED ONLY 
+    // TO BE EXECUTED ONLY IN GROUPS
 
     if (Chat.isGroup == false) {
         return undefined;
     }
+
+    var raw = fs.readFileSync("./config/banned.json")
+    var db = JSON.parse(raw);
+    var chatifcamefrom = message.from
+    var bodyy = message.body
+    try {
+        if (db[chatifcamefrom].includes(bodyy) || db[chatifcamefrom].includes(bodyy)) {
+            await message.delete(true)
+        }
+    } catch (e) {
+    }
+    
 
     switch (req[0]) {
         case ".s":
@@ -399,6 +412,43 @@ client.on('message', async (message) => {
                 message.react("❌");
             }
             break;
+        case ".ban":
+            
+            var group = message.from
+            try {
+                var msg = await message.getQuotedMessage()
+                if (msg.type == "chat") {
+                    var toBan = msg.body
+                } else {
+                    var toBan = msg.mediaKey
+                }
+            } catch (e) {
+                console.log(e)
+                message.react("❌");
+            }
+
+            if (toBan.charAt() == ".") {
+                message.react("❌");
+                break;
+            }
+
+            if (db[group] == undefined) {
+                file = editJsonFile("./config/banned.json", {
+                    autosave: true
+                });
+                file.append(group.replace(".", "\\."), " ")
+            }
+            try {
+                db[group].push(toBan)
+                var jsonData = JSON.stringify(db);
+                fs.writeFileSync("./config/banned.json", jsonData);
+                message.react("✅");
+            } catch (e) {
+                message.react("❌");
+            }
+            break;
+
+
         default:
             client.getChatById(message.id.remote).then(async (chat) => {
                 await chat.sendSeen();
@@ -406,7 +456,7 @@ client.on('message', async (message) => {
         break;
     }
 
- 
+
 });
 
 client.initialize();
