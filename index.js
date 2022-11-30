@@ -85,8 +85,9 @@ client.on('message', async (message) => {
     var db = JSON.parse(raw);
     var chatifcamefrom = message.from
     var bodyy = message.body
+    var mediaa = message.mediaKey
     try {
-        if (db[chatifcamefrom].includes(bodyy) || db[chatifcamefrom].includes(bodyy)) {
+        if (db[chatifcamefrom].includes(bodyy) || db[chatifcamefrom].includes(mediaa)) {
             await message.delete(true)
         }
     } catch (e) {
@@ -426,11 +427,13 @@ client.on('message', async (message) => {
                 console.log(e)
                 message.react("❌");
             }
-
-            if (toBan.charAt() == ".") {
-                message.react("❌");
-                break;
-            }
+            try {
+                if (toBan.charAt() == ".") {
+                    message.react("❌");
+                    break;
+                }
+            } catch (e) {}
+            
 
             if (db[group] == undefined) {
                 file = editJsonFile("./config/banned.json", {
