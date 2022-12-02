@@ -29,6 +29,7 @@ const filepath = "./files/output.png";
 const font = PImage.registerFont("./files/arial_bold.ttf","ArialBlack",);
 const menu = fs.readFileSync("./files/menu.txt");
 var msg;
+var commands = [".s", ".sticker", ".q", ".quote", ".r", ".reveal", ".ban", ".tts", ".texttospeech", ".menu"]
 
 
 client.on('qr', (qr) => {
@@ -84,12 +85,23 @@ client.on('message', async (message) => {
     var raw = fs.readFileSync("./config/banned.json")
     var db = JSON.parse(raw);
     var chatifcamefrom = message.from
-    var bodyy = message.body
-    var mediaa = message.mediaKey
     try {
-        if (db[chatifcamefrom].includes(bodyy) || db[chatifcamefrom].includes(mediaa)) {
-            await message.delete(true)
+        var bodyy = (message.body).toLowerCase()
+        var splitBody = bodyy.split(" ")
+        var mediaa = (message.mediaKey).toLowerCase()
+    } catch {
+        console.log("")
+    }
+    
+    console.log(message)
+    try {
+        for (palabra in splitBody) {
+            if ((db[chatifcamefrom].includes(splitBody[palabra]) || db[chatifcamefrom].includes(mediaa)) && commands.includes(splitBody[palabra]) === false)  {
+                await message.delete(true)
+                break;
+            }
         }
+        
     } catch (e) {
     }
     
@@ -419,9 +431,9 @@ client.on('message', async (message) => {
             try {
                 var msg = await message.getQuotedMessage()
                 if (msg.type == "chat") {
-                    var toBan = msg.body
+                    var toBan = (msg.body).toLowerCase()
                 } else {
-                    var toBan = msg.mediaKey
+                    var toBan = (msg.mediaKey).toLowerCase()
                 }
             } catch (e) {
                 console.log(e)
