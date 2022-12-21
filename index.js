@@ -463,7 +463,18 @@ client.on('message', async (message) => {
             }
             break;
 
+        case "@todos":
+            let text = "";
+            let mentions = [];
 
+            for(let participant of chat.participants) {
+                const contact = await client.getContactById(participant.id._serialized);
+                
+                mentions.push(contact);
+                text += `@${participant.id.user}`;
+            }
+
+            await Chat.sendMessage(text, { mentions });
         default:
             client.getChatById(message.id.remote).then(async (chat) => {
                 await chat.sendSeen();
